@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import DefaultImage from "@/assets/upload.png";
-import UploadIcon from "@/assets/upload.svg";
+import UploadIcon from "../assets/Upload.svg";
 import apiClient from "@/ApiClient/ApiClient";
 import Loader from "@/lib/Loader";
 import { useDispatch } from "react-redux";

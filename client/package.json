@@ -3,11 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
+ "scripts": {
     "dev": "vite",
+    "predeploy": "npm run build",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "run": "npm run build && npm run preview",
+    "vercel-build": "npm run build",
+    "start": "serve dist"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",

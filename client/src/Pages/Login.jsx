@@ -40,17 +40,9 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const resultAction = await dispatch(login(formData));
-      if (login.fulfilled.match(resultAction)) {
+       dispatch(login(formData));
         toast.success("Login successful!");
-        setTimeout(() => {
           navigate("/profile");
-        }, 2000);
-      } else {
-        throw new Error(
-          resultAction.payload || "Login failed. Please try again."
-        );
-      }
     } catch (error) {
       const errorMessage =
         error.message || "Something went wrong. Please try again.";

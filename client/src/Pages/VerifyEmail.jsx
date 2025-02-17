@@ -1,9 +1,9 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUser, resendOtp as otpResend } from "@/Store/AuthSlice";
-import { verifyOtp as validateOtp } from "@/Store/AuthSlice";
+import { fetchUser, resendOtp as otpResend, verifyOtp as validateOtp } from "@/Store/AuthSlice";
 import { toast } from "sonner";
 
 const VerifyEmail = () => {
@@ -17,23 +17,25 @@ const VerifyEmail = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = `SmartBuy - Verify Email`;
-      dispatch(fetchUser());
-      if(!user){
-        navigate("/login");
-        return;
-      }
-  }, [user, navigate, dispatch]);
+    document.title = "SmartBuy - Verify Email";
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    if (user.emailVerified) {
+      navigate("/profile");
+      return;
+    }
+  }, [user, navigate]);
 
   if (!user) return null;
 
   const handleInputChange = (value, index) => {
-    if (!/^\d?$/.test(value)) return;
+    if (!/^\d?$/.test(value)) return; // Ensure only numeric input
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-
-    setError("");
+    setError(""); // Clear error on valid input
     if (value && index < 5) {
       document.querySelector(`#otp-input-${index + 1}`)?.focus();
     }
@@ -61,28 +63,32 @@ const VerifyEmail = () => {
     try {
       const response = await dispatch(validateOtp(otpValue)).unwrap();
       setSuccess(response.message || "OTP verified successfully!");
-      setTimeout(() => navigate("/profile"), 1000);
+      toast.success("OTP verified successfully!");
+      navigate("/profile");
     } catch (error) {
       const errorMsg = error?.message || "Failed to verify OTP. Please try again.";
       setError(errorMsg);
       toast.error(errorMsg);
     } finally {
       setLoading(false);
+      navigate("/profile");
     }
   };
 
   const resendOtp = async () => {
     if (resendDisabled) return;
 
+    setResendDisabled(true);
     try {
-      setResendDisabled(true);
-      await dispatch(otpResend());
+      await dispatch(otpResend()).unwrap();
       setSuccess("OTP resent successfully!");
       toast.success("OTP resent successfully!");
-      setTimeout(() => setResendDisabled(false), 30000);
     } catch (error) {
-      toast.error("Failed to resend OTP. Please try again.",error);
-      setResendDisabled(false);
+      const errorMsg = "Failed to resend OTP. Please try again.";
+      setError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setTimeout(() => setResendDisabled(false), 30000); // Re-enable button after 30 seconds
     }
   };
 
@@ -96,9 +102,6 @@ const VerifyEmail = () => {
         <p className="text-gray-600 mb-2 text-center">
           Enter the OTP sent to your email.
         </p>
-        <p className="text-gray-600 font-medium text-center">
-          Please enter the OTP manually.
-        </p>
         <p className="text-gray-500 text-sm italic text-center mb-4">
           Copy-paste functionality is disabled.
         </p>
@@ -110,7 +113,7 @@ const VerifyEmail = () => {
               id={`otp-input-${index}`}
               type="text"
               autoComplete="off"
-              placeholder="⏳"
+              placeholder="0"
               value={value}
               onChange={(e) => handleInputChange(e.target.value, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
@@ -120,8 +123,16 @@ const VerifyEmail = () => {
             />
           ))}
         </div>
-        {error && <p className="text-red-500 text-sm mb-2" aria-live="assertive">{error}</p>}
-        {success && <p className="text-green-500 text-sm mb-2" aria-live="assertive">{success}</p>}
+        {error && (
+          <p className="text-red-500 text-sm mb-2" aria-live="assertive">
+            {error}
+          </p>
+        )}
+        {success && (
+          <p className="text-green-500 text-sm mb-2" aria-live="assertive">
+            {success}
+          </p>
+        )}
         <button
           type="submit"
           className={`w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition hover:bg-blue-700 focus:outline-none ${

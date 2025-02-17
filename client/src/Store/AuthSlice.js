@@ -8,11 +8,28 @@ export const fetchUser = createAsyncThunk(
     try {
       const response = await apiClient.get("/user/me", {
         withCredentials: true,
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       return response.data.user;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch user"
+      );
+    }
+  }
+);
+
+export const registerUser = createAsyncThunk(
+  "auth/registerUser",
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.post("/user/register", userData);
+      console.log(response);
+      localStorage.setItem("token", response.data.token);
+      return response.data.user;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to register user"
       );
     }
   }
@@ -41,6 +58,9 @@ export const login = createAsyncThunk(
       const response = await apiClient.post("/user/logIn", credentials, {
         withCredentials: true,
       });
+      console.log(response.data);
+      //save token to local storage
+      localStorage.setItem("token", response.data.token);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Login failed");
@@ -53,6 +73,8 @@ export const logout = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await apiClient.post("/user/logout", {}, { withCredentials: true });
+      localStorage.setItem("token", "");
+
       return true;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Logout failed");
@@ -209,6 +231,21 @@ const AuthSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Register User
+      .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.isAuthenticated = true;
+        state.user = action.payload;
+        state.loading = false;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.isAuthenticated = false;
+        state.user = null;
+        state.loading = false;
+        state.error = action.payload;
+      })
       // Fetch User
       .addCase(fetchUser.pending, (state) => {
         state.loading = true;
@@ -310,7 +347,7 @@ const AuthSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isAuthenticated = true;
-        state.user = { ...action.payload.user };
+        state.user = action.payload.user ;
         state.loading = false;
       })
       .addCase(login.rejected, (state, action) => {

@@ -1,7 +1,7 @@
-/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, Suspense, lazy } from "react";
+import { useEffect, Suspense, lazy, useMemo } from "react";
 import { fetchUser } from "./Store/AuthSlice";
 import { fetchProducts } from "./Store/ProductSlice";
 import Navbar from "./Pages/Navbar";
@@ -30,22 +30,22 @@ const OrderPage = lazy(() => import("./Pages/OrderPage"));
 const ProductForm = lazy(() => import("./Pages/ProductForm"));
 
 // ProtectedRoute Component
-const ProtectedRoute = ({ user, redirectTo, children }) => {
-  return user ? children : <Navigate to={redirectTo} replace />;
-};
-
-// AdminRoute Component for Role-Based Access
-const AdminRoute = ({ user, children }) => {
-  return user && user.role === "admin" ? children : <NotFound />;
-};
 
 function App() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { products } = useSelector((state) => state.product);
+  console.log(user);
+  const { products, loading, error } = useSelector((state) => state.product);
 
   useEffect(() => {
     dispatch(fetchUser());
+    console.log("fetch user");
+  }, [dispatch]);
+
+  const memoizedProducts = useMemo(() => products, [products]); // Memoizing products
+  const memoizedUser = useMemo(() => user,[user]); // Memoizing products
+
+  useEffect(() => {
     dispatch(fetchProducts({}));
   }, [dispatch]);
 
@@ -60,65 +60,58 @@ function App() {
         }
       >
         <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={user ? <Navigate to="/profile" replace /> : <Login />} />
-          <Route path="/signup" element={user ? <Navigate to="/profile" replace /> : <SignUp />} />
+          <Route
+            path="/login"
+            element={memoizedUser ? <Navigate to="/profile" replace /> : <Login />}
+          />
+          <Route path="/" element={<Products products={memoizedProducts} />} />
+          <Route
+            path="/signup"
+            element={memoizedUser ? <Navigate to="/profile" replace /> : <SignUp />}
+          />
           <Route path="/verifyEmail" element={<VerifyEmail />} />
           <Route path="/forgotPassword" element={<ForgotPassword />} />
           <Route path="/password/reset/:resetToken" element={<ResetPassword />} />
-          <Route path="/" element={<Products products={products} />} />
           <Route path="/product/:productId" element={<Product />} />
+          <Route path="/product/edit/:productId" element={<EditProduct />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/allProducts" element={<AllProducts />} />
-          <Route path="/allProducts/:keyword" element={<AllProducts />} />
-          <Route path="/checkout" element={<CheckOut />} />
-          <Route path="/payment" element={<PaymentPage />} />
-          <Route path="/order/:orderId" element={<OrderDetail />} />
-          <Route path="/userOrders" element={<Orders />} />
-          <Route path="/chart" element={<Charts />} />
-          <Route path="*" element={<NotFound />} />
-
-          {/* Protected Routes */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute user={user} redirectTo="/login">
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/order"
-            element={
-              <ProtectedRoute user={user} redirectTo="/login">
-                <OrderPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Admin Routes */}
           <Route
             path="/createProduct"
             element={
-              <AdminRoute user={user}>
-                <ProductForm />
-              </AdminRoute>
+              memoizedUser && memoizedUser.role === "admin" ? <ProductForm /> : <NotFound />
             }
           />
           <Route
             path="/dashboard/*"
             element={
-              <AdminRoute user={user}>
-                <Index />
-              </AdminRoute>
+              memoizedUser && memoizedUser.role === "admin" ? <Index /> : <NotFound />
+            }
+          />
+          <Route path="/allProducts" element={<AllProducts />} />
+          <Route path="/checkout" element={<CheckOut />} />
+          <Route path="/order/:orderId" element={<OrderDetail />} />
+          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/allProducts/:keyword" element={<AllProducts />} />
+          <Route path="*" element={<NotFound />} />
+          <Route path="/error" element={<NotFound />} />
+          <Route path="/userOrders" element={<Orders />} />
+          <Route path="/chart" element={<Charts />} />
+          <Route
+            path="/profile"
+            element={
+                <Profile />
             }
           />
           <Route
-            path="/product/edit/:productId"
+            path="/order"
             element={
-              <AdminRoute user={user}>
-                <EditProduct />
-              </AdminRoute>
+                <OrderPage />
+            }
+          />
+          <Route
+            path="/dashboard/*"
+            element={
+                <Index />
             }
           />
         </Routes>

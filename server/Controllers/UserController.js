@@ -7,16 +7,24 @@ const crypto = require("crypto");
 
 const registerUser = CatchAsyncError(async (req, res, next) => {
   const { username, email, password, role = "user" } = req.body;
+
+  // Check if the user already exists
   const userExists = await User.findOne({ email });
   if (userExists) {
-    return res.status(200).json({
+    return res.status(409).json({
       message: "User already exists!",
       success: false,
     });
   }
+
+  // Encrypt the password
   const encryptedPassword = await bcrypt.hash(password, 10);
+
+  // Generate OTP and expiration time
   const otp = crypto.randomInt(100000, 999999).toString();
-  const otpVerifyTime = Date.now() + 1 * 60 * 1000;
+  const otpVerifyTime = Date.now() + 1 * 60 * 1000; // OTP valid for 1 minute
+
+  // Create the user
   const user = new User({
     username,
     email,
@@ -25,39 +33,50 @@ const registerUser = CatchAsyncError(async (req, res, next) => {
     otpVerifyTime,
     role,
   });
+
   try {
+    // Save the user in the database
     await user.save();
-    const message = `Welcome ${username},\n\nYour account has been successfully created on our platform. Thank you for registering!\n\nOTP: ${otp}`;
+
+    // Send a welcome email with the OTP
+    const message = `Welcome ${username},\n\nYour account has been successfully created on our platform. Thank you for registering!\n\nYour OTP: ${otp}\n\nThis OTP will expire in 1 minute.`;
     await SendEmail({
       email: user.email,
       subject: "Welcome to Our E-commerce Platform",
       message,
     });
+
+    // Generate a JWT token
     const token = jwt.sign(
       { id: user._id, role: user.role, email: user.email },
       process.env.JWT_SECRET_KEY,
       { expiresIn: "7d" }
     );
+
+    // Set the token as a cookie
     res.cookie("token", token, {
       httpOnly: true,
+      sameSite: "none",
       secure: process.env.NODE_ENV === "production",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
+
+    // Remove sensitive data from the response
+    const {profilePic,password, otp: userOtp, otpVerifyTime: userOtpVerifyTime, ...userData } = user._doc;
+
+    // Respond with success
     res.status(201).json({
       message: "User registered successfully!",
       success: true,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      },
+      user: userData,
       token,
     });
   } catch (error) {
+    // Handle any errors during registration
     return next(new Error(`Registration failed: ${error.message}`));
   }
 });
+
 
 const verifyOtp = CatchAsyncError(async (req, res) => {
   const { otp } = req.body;
@@ -169,24 +188,24 @@ const getUserDetails = CatchAsyncError(async (req, res, next) => {
     });
   }
 });
-
 const logIn = CatchAsyncError(async (req, res, next) => {
+  console.log("api call to login");
   const { email, password } = req.body;
+  // Validate input
   if (!email || !password) {
     return res.status(400).json({
-      message: "Please provide email and password",
+      message: "Please provide both email and password",
       success: false,
     });
   }
-  const user = await User.findOne({ email }).select(
-    "-__v -otp -otpVerifyTime "
-  );
+  const user = await User.findOne({ email }).select("+password").lean();
   if (!user) {
     return res.status(401).json({
       message: "Invalid email or password",
       success: false,
     });
   }
+  // Verify password
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return res.status(401).json({
@@ -194,24 +213,35 @@ const logIn = CatchAsyncError(async (req, res, next) => {
       success: false,
     });
   }
+  // Generate JWT
+  const { JWT_SECRET_KEY } = process.env;
+  if (!JWT_SECRET_KEY) {
+    return res.status(500).json({
+      message: "JWT_SECRET_KEY is not defined",
+      success: false,
+    });
+  }
   const token = jwt.sign(
     { id: user._id, role: user.role, email: user.email },
-    process.env.JWT_SECRET_KEY,
+    JWT_SECRET_KEY,
     { expiresIn: "7d" }
   );
-  const userObject = user.toObject();
-  delete userObject.password;
-  const userData = userObject;
+  // Prepare user data to exclude sensitive fields
+  delete user.password;
+  // Set HTTP-only cookie
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production", // Secure flag in production
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
+
+  // Send response
   return res.status(200).json({
     message: "Logged in successfully",
     success: true,
-    user: userData,
-    token,
+    user,
+    token, // Include only if necessary; otherwise, rely on cookies
   });
 });
 
@@ -367,16 +397,18 @@ const resetPassword = CatchAsyncError(async (req, res, next) => {
   }
 });
 
-const AllUsers = CatchAsyncError(async(req,res,next)=>{
+const AllUsers = CatchAsyncError(async (req, res, next) => {
   const role = req.role || "admin";
-  if (role!== "admin") {
+  if (role !== "admin") {
     return res.status(403).json({
       message: "Unauthorized access - Only admin can access this route",
       success: false,
     });
   }
   try {
-    const users = await User.find({}).select("-password -__v -otp -otpVerifyTime");
+    const users = await User.find({}).select(
+      "-password -__v -otp -otpVerifyTime"
+    );
     res.status(200).json({
       message: "Users fetched successfully",
       success: true,
@@ -390,7 +422,7 @@ const AllUsers = CatchAsyncError(async(req,res,next)=>{
       error: error.message,
     });
   }
-})
+});
 
 const getUserDetailsById = CatchAsyncError(async (req, res, next) => {
   const role = req.role;
@@ -408,7 +440,7 @@ const getUserDetailsById = CatchAsyncError(async (req, res, next) => {
     });
   }
   try {
-    let user = await User.findById(id,'-password');
+    let user = await User.findById(id, "-password");
     if (!user) {
       return res.status(404).json({
         message: "User not found",
@@ -432,7 +464,7 @@ const getUserDetailsById = CatchAsyncError(async (req, res, next) => {
 
 const updateUser = CatchAsyncError(async (req, res, next) => {
   const userId = req.userId;
-  const userRole = req.role ;
+  const userRole = req.role;
   const { id, role } = req.query;
   if (!id) {
     return res.status(400).json({
@@ -501,7 +533,7 @@ const deleteUser = CatchAsyncError(async (req, res, next) => {
 
   try {
     // Attempt to delete the user
-    const user = await User.findByIdAndDelete({_id: id});
+    const user = await User.findByIdAndDelete({ _id: id });
 
     if (!user) {
       return res.status(404).json({
@@ -525,8 +557,6 @@ const deleteUser = CatchAsyncError(async (req, res, next) => {
   }
 });
 
-
-
 module.exports = {
   registerUser,
   verifyOtp,
@@ -540,5 +570,5 @@ module.exports = {
   getUserDetailsById,
   updateUser,
   AllUsers,
-  deleteUser
+  deleteUser,
 };

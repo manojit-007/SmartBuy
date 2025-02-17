@@ -1,4 +1,3 @@
-import apiClient from "@/ApiClient/ApiClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +7,8 @@ import Eye from "@/assets/Eye.svg";
 import EyeClose from "@/assets/EyeClose.svg";
 import Loader from "@/lib/Loader";
 import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { registerUser } from "@/Store/AuthSlice";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -54,6 +55,7 @@ const SignUp = () => {
     return true;
   };
 
+  const dispatch = useDispatch();
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -62,18 +64,22 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      const response = await apiClient.post("/user/register", formData, {
-        withCredentials: true,
-      });
+      const response = await dispatch(registerUser(formData));
 
       if (response.status === 201) {
+        console.log(response);
         toast.success(
           "Registration successful! Redirecting to verify email..."
         );
-        setTimeout(() => navigate("/verifyEmail", { replace: true }), 2000);
+        setTimeout(() => {
+          navigate("/verifyEmail");
+        }, 2000);
+      } else {
+        toast.error(response.payload);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "An error occurred.");
+      console.log(error);
+      toast.error(error || "An error occurred.");
     } finally {
       setLoading(false);
       setFormData({ username: "", email: "", password: "", role: "user" });

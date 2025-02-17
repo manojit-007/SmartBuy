@@ -32,8 +32,10 @@ const Profile = () => {
 
   useEffect(() => {
     document.title = `SmartBuy - Profile`;
+    setLoading(true);
+    dispatch(fetchUser());
     setLoading(false);
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (!user) {

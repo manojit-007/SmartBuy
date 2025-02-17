@@ -39,7 +39,6 @@ function App() {
 
   useEffect(() => {
     dispatch(fetchUser());
-    console.log("fetch user");
   }, [dispatch]);
 
   const memoizedProducts = useMemo(() => products, [products]); // Memoizing products

@@ -8,12 +8,9 @@ import Eye from "@/assets/Eye.svg";
 import EyeClose from "@/assets/EyeClose.svg";
 import Loader from "@/lib/Loader";
 import { toast } from "sonner";
-import { useDispatch } from "react-redux";
-import { fetchUser } from "@/Store/AuthSlice";
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
@@ -73,7 +70,6 @@ const SignUp = () => {
         toast.success(
           "Registration successful! Redirecting to verify email..."
         );
-        dispatch(fetchUser());
         setTimeout(() => navigate("/verifyEmail", { replace: true }), 2000);
       }
     } catch (error) {

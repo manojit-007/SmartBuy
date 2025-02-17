@@ -51,7 +51,7 @@ const OrderDetail = () => {
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
         {/* Back Button */}
         <Button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/userOrders")}
           className="mb-6 bg-gray-800 text-white hover:bg-gray-700"
         >
           Back

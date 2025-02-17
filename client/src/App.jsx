@@ -34,7 +34,6 @@ const ProductForm = lazy(() => import("./Pages/ProductForm"));
 function App() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  console.log(user);
   const { products, loading, error } = useSelector((state) => state.product);
 
   useEffect(() => {

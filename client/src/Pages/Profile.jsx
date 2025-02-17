@@ -18,20 +18,8 @@ const Profile = () => {
   const { user } = useSelector((state) => state.auth);
   const [changePassword, setChangePassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    document.title = `SmartBuy - Profile`;
-    setLoading(true);
-    dispatch(fetchUser()).finally(() => setLoading(false));
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (!user) 
-      navigate("/login");
-  }, [user, navigate])
-
 
   const [formData, setFormData] = useState({
     username: user?.username || "",
@@ -41,16 +29,29 @@ const Profile = () => {
     confirmPassword: "",
   });
 
+  useEffect(() => {
+    document.title = `SmartBuy - Profile`;
+    setLoading(true);
+    dispatch(fetchUser())
+      .finally(() => setLoading(false));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
-    setError("");
+    setError(""); // Clear error on input change
   };
 
-  const handleLogOut = async () => {
+  const handleLogOut = () => {
     dispatch(logout());
     navigate("/login");
   };
@@ -59,6 +60,10 @@ const Profile = () => {
     e.preventDefault();
     if (formData.newPassword !== formData.confirmPassword) {
       setError("New password and confirm password must match!");
+      return;
+    }
+    if (formData.newPassword.length < 6) {
+      setError("New password must be at least 6 characters long!");
       return;
     }
     try {
@@ -95,7 +100,6 @@ const Profile = () => {
             <TabsTrigger value="address">Address</TabsTrigger>
           </TabsList>
           <TabsContent value="account">
-            {/* Account Info */}
             <div className="flex flex-col items-center justify-center gap-6">
               <h1 className="text-3xl font-semibold text-gray-800">Profile</h1>
               <div className="flex flex-col gap-4 w-full max-w-md">
@@ -140,11 +144,10 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Password Change Form */}
             {changePassword && (
               <form
                 onSubmit={handlePasswordSubmit}
-                className="mt-6 flex flex-col gap-6 rounded-lg w-full m-auto max-w-md p-6 bg-white shadow-md"
+                className="mt-6 flex flex-col gap-6 rounded-lg w-full max-w-md m-auto p-6 bg-white shadow-md"
               >
                 {error && <p className="text-red-500 text-sm">{error}</p>}
                 <div>
@@ -210,8 +213,8 @@ const Profile = () => {
           </TabsContent>
           <TabsContent value="address">
             <div className="w-full grid place-content-center">
-              Coming soon
-              </div>
+              Coming Soon
+            </div>
           </TabsContent>
         </Tabs>
       </main>

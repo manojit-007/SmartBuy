@@ -25,6 +25,7 @@ const PaymentPage = () => {
       const { data } = await apiClient.post("/payment/checkout", { amount });
       // console.log(data);
       const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY,
         order_id: data.id,
         amount: data.amount,
         currency: "INR",
@@ -44,7 +45,6 @@ const PaymentPage = () => {
           color: "#121212",
         },
         handler: async function (response) {
-
           try {
             // Verify the payment
             const verificationData = await apiClient.post(
@@ -122,7 +122,7 @@ const PaymentPage = () => {
         (acc, item) => acc + item.price * item.quantity,
         0
       );
-      const totalAmount =(subtotal * 1.05).toFixed(2); // Adding 5% GST
+      const totalAmount = (subtotal * 1.05).toFixed(2); // Adding 5% GST
       console.log(totalAmount);
       await checkout(totalAmount);
     } catch (error) {
@@ -142,9 +142,6 @@ const PaymentPage = () => {
 
       <div className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md">
         <form className="space-y-4">
-
-         
-
           <Button
             type="button"
             onClick={handleCheckout}

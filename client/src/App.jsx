@@ -39,14 +39,12 @@ function App() {
 
   useEffect(() => {
     dispatch(fetchUser());
+    dispatch(fetchProducts({}));
   }, [dispatch]);
 
   const memoizedProducts = useMemo(() => products, [products]); // Memoizing products
   const memoizedUser = useMemo(() => user,[user]); // Memoizing products
 
-  useEffect(() => {
-    dispatch(fetchProducts({}));
-  }, [dispatch]);
 
   return (
     <>

@@ -8,16 +8,32 @@ const instance = new Razorpay({
 
 const checkout = async (req, res) => {
   try {
+    const amount = req.body.amount; // Get the amount from the request body
+
+    // Validate that the amount is a valid number
+    if (!amount || isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid amount provided" 
+      });
+    }
+
+    // Convert to integer in the smallest currency unit
     const options = {
-      amount: Number(req.body.amount * 100),
+      amount: Math.round(amount * 100), // Multiply by 100 and round off
       currency: "INR",
     };
+
+    // Create the order
     const order = await instance.orders.create(options);
-    // console.log("Order Created:", order);
+
     res.status(200).json(order);
   } catch (error) {
     console.error("Error creating order:", error);
-    res.status(500).json({ success: false, message: "Order creation failed" });
+    res.status(500).json({ 
+      success: false, 
+      message: "Order creation failed" 
+    });
   }
 };
 

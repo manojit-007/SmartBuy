@@ -25,7 +25,7 @@ const PaymentPage = () => {
       const { data } = await apiClient.post("/payment/checkout", { amount });
       // console.log(data);
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY,
+        // key: import.meta.env.VITE_RAZORPAY_KEY,
         order_id: data.id,
         amount: data.amount,
         currency: "INR",

@@ -18,6 +18,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import OrderIcon from "@/assets/Order.svg";
 import { RefreshCcw } from "lucide-react";
+import { toast } from "sonner";
 
 const AllOrders = () => {
   const { user } = useSelector((state) => state.auth);
@@ -57,7 +58,7 @@ const AllOrders = () => {
         { headers: { "Content-Type": "application/json" } }
       );
       console.log(res);
-      alert(`Order ${id} updated to ${status}`);
+      toast.success(`Order ${id} updated to ${status}`);
       fetchAllOrders();
     } catch (error) {
       console.error("Error updating order:", error.message);

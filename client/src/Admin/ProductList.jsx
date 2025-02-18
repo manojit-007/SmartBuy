@@ -54,6 +54,7 @@ const ProductList = () => {
   const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
+    document.title = `SmartBuy - All Products`;
     dispatch(adminAllProducts());
   }, [dispatch]);
 

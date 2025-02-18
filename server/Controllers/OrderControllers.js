@@ -129,15 +129,16 @@ const GetUserAllOrders = CatchAsyncError(async (req, res, next) => {
 const getOrderDetails = CatchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   const role = req.role;
-  if (role !== "admin") {
-    return res.status(403).json({
-      message: "Forbidden. Only admin can access this route",
-      success: false,
-    });
-  }
+ 
   try {
     // console.log(`Fetching details for Order ID: ${id}`);
-    const order = await Order.findById(id).populate("user", "username email");
+    const order = await Order.findById(id).populate("user", "username email _id");
+    if (role !== "admin" || id !== order.user._id) {
+      return res.status(403).json({
+        message: "Forbidden. Only admin can access this route",
+        success: false,
+      });
+    }
     if (order) {
       res.status(200).json({
         success: true,

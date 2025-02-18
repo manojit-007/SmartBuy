@@ -7,8 +7,6 @@ const crypto = require("crypto");
 
 const registerUser = CatchAsyncError(async (req, res, next) => {
   const { username, email, password, role = "user" } = req.body;
-
-  // Check if the user already exists
   const userExists = await User.findOne({ email });
   if (userExists) {
     return res.status(409).json({
@@ -16,14 +14,9 @@ const registerUser = CatchAsyncError(async (req, res, next) => {
       success: false,
     });
   }
-
-  // Encrypt the password
   const encryptedPassword = await bcrypt.hash(password, 10);
-
-  // Generate OTP and expiration time
   const otp = crypto.randomInt(100000, 999999).toString();
-  const otpVerifyTime = Date.now() + 1 * 60 * 1000; // OTP valid for 1 minute
-
+  const otpVerifyTime = Date.now() + 1 * 60 * 1000; 
   // Create the user
   const user = new User({
     username,
@@ -33,12 +26,8 @@ const registerUser = CatchAsyncError(async (req, res, next) => {
     otpVerifyTime,
     role,
   });
-
   try {
-    // Save the user in the database
     await user.save();
-
-    // Send a welcome email with the OTP
     const message = `Welcome ${username},\n\nYour account has been successfully created on our platform. Thank you for registering!\n\nYour OTP: ${otp}\n\nThis OTP will expire in 1 minute.`;
     await SendEmail({
       email: user.email,
@@ -46,25 +35,18 @@ const registerUser = CatchAsyncError(async (req, res, next) => {
       message,
     });
 
-    // Generate a JWT token
     const token = jwt.sign(
       { id: user._id, role: user.role, email: user.email },
       process.env.JWT_SECRET_KEY,
       { expiresIn: "7d" }
     );
-
-    // Set the token as a cookie
     res.cookie("token", token, {
       httpOnly: true,
       sameSite: "none",
       secure: process.env.NODE_ENV === "production",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-
-    // Remove sensitive data from the response
     const {profilePic,password, otp: userOtp, otpVerifyTime: userOtpVerifyTime, ...userData } = user._doc;
-
-    // Respond with success
     res.status(201).json({
       message: "User registered successfully!",
       success: true,
@@ -72,7 +54,6 @@ const registerUser = CatchAsyncError(async (req, res, next) => {
       token,
     });
   } catch (error) {
-    // Handle any errors during registration
     return next(new Error(`Registration failed: ${error.message}`));
   }
 });
@@ -189,7 +170,6 @@ const getUserDetails = CatchAsyncError(async (req, res, next) => {
   }
 });
 const logIn = CatchAsyncError(async (req, res, next) => {
-  console.log("api call to login");
   const { email, password } = req.body;
   // Validate input
   if (!email || !password) {

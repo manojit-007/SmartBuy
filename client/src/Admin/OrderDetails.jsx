@@ -3,17 +3,15 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import ReviewForm from "./ReviewForm";
 
 const OrderDetail = () => {
   const { orderId } = useParams(); // Extract the orderId parameter
   const [orderDetails, setOrderDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showReviewForm, setShowReviewForm] = useState(null); // To manage review form visibility
   const navigate = useNavigate();
   useEffect(() => {
-    document.title = `SmartBuy - Order Details`;
+    document.title = `SmartBuy - Admin Order Details`;
 
     const fetchOrderDetails = async () => {
       try {
@@ -52,7 +50,7 @@ const OrderDetail = () => {
         <Button
           onClick={() => 
        
-            navigate("/userOrders")}
+            navigate(-1)}
           className="mb-6 bg-gray-800 text-white hover:bg-gray-700"
         >
           Back
@@ -145,50 +143,14 @@ const OrderDetail = () => {
                     </span>
                   </p>
                 </div>
-                {orderDetails.orderStatus === "Delivered" && (
-                  <Button
-                    className="ml-auto px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 transition-colors duration-300"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowReviewForm({
-                        orderId: orderDetails._id,
-                        productId: item.product,
-                      });
-                    }}
-                  >
-                    + Review
-                  </Button>
-                )}
+             
               </li>
             ))}
           </ul>
         </div>
 
         {/* Review Form Modal */}
-        {showReviewForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded shadow-xl max-w-lg w-full relative">
-              <button
-                className="absolute top-4 right-4 px-3 py-1 text-gray-500 hover:text-red-600 rounded hover:bg-gray-50 font-extrabold border focus:outline-none transition duration-300"
-                onClick={() => setShowReviewForm(null)}
-              >
-                ✕
-              </button>
-              <header className="text-lg font-semibold text-gray-700 mb-4 text-center">
-                Add Your Review
-              </header>
-              <ReviewForm
-                orderId={showReviewForm.orderId}
-                productId={showReviewForm.productId}
-                onSubmit={(reviewData) => {
-                  console.log("Submitted Review:", reviewData);
-                  setShowReviewForm(null);
-                  toast.success("Review submitted successfully!");
-                }}
-              />
-            </div>
-          </div>
-        )}
+
       </div>
     </div>
   );

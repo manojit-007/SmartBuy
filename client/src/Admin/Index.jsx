@@ -35,6 +35,7 @@ import UserList from "./UserList";
 import EditProduct from "@/Pages/EditProduct";
 import SearchById from "./SearchById";
 import EditUser from "@/Pages/EditUser";
+import OrderDetail from "./OrderDetails";
 
 const items = [
   {
@@ -155,6 +156,7 @@ const Index = () => {
             <Route path="/search" element={<SearchById />} />
             <Route path="/product/edit/:productId" element={<EditProduct />} />
             <Route path="/user/edit/:userId" element={<EditUser />} />
+            <Route path="/order/:orderId" element={<OrderDetail />} />
             {/* <Route path="/dashboard/allOrders" element={<AllOrders />} /> */}
           </Routes>
         </main>

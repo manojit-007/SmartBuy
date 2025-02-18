@@ -41,7 +41,7 @@ const Login = () => {
     e.preventDefault();
     try {
        dispatch(login(formData));
-        toast.success("Login successful!");
+        // toast.success("Login successful!");
           navigate("/profile");
     } catch (error) {
       const errorMessage =

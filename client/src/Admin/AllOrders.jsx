@@ -17,7 +17,7 @@ import { useEffect, useCallback, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import OrderIcon from "@/assets/Order.svg";
-import { RefreshCcw } from "lucide-react";
+import { ExternalLink, RefreshCcw } from "lucide-react";
 import { toast } from "sonner";
 
 const AllOrders = () => {
@@ -28,7 +28,7 @@ const AllOrders = () => {
   const [orders, setOrders] = useState([]);
   const [filterOrder, setFilterOrder] = useState("AllOrders");
   const [animate, setAnimate] = useState(false);
-  const [selectedType,setSelectedType ] = useState("");
+  const [selectedType, setSelectedType] = useState("");
 
   // Fetch orders from API
   const fetchAllOrders = useCallback(async () => {
@@ -111,7 +111,9 @@ const AllOrders = () => {
           </div>
 
           {/* Display loader, error, or empty state */}
-          {loading && <p className="text-center text-gray-500">Loading orders...</p>}
+          {loading && (
+            <p className="text-center text-gray-500">Loading orders...</p>
+          )}
           {error && (
             <p className="text-center text-red-500">
               Error: {error}. Please try refreshing the page.
@@ -130,7 +132,7 @@ const AllOrders = () => {
                     <SelectValue placeholder="Filter by Status" />
                   </SelectTrigger>
                   <SelectContent>
-                  {["AllOrders", "Processing", "Shipped", "Delivered"].map(
+                    {["AllOrders", "Processing", "Shipped", "Delivered"].map(
                       (filter) => (
                         <SelectItem key={filter} value={filter}>
                           {filter}
@@ -155,8 +157,14 @@ const AllOrders = () => {
                           alt="Order"
                           className="w-5 h-5 object-contain"
                         />
-                        <span className="text-sm text-gray-700">
-                          <strong>Order ID:</strong> {order._id}
+                        <span
+                          onClick={() =>
+                            navigate(`/dashboard/order/${order._id}`)
+                          }
+                          className="text-sm text-gray-700 flex items-center justify-center gap-1"
+                        >
+                          <strong>Order ID:</strong> {order._id}{" "}
+                          <ExternalLink className="w-4 h-4" />
                         </span>
                       </div>
                       <span
@@ -190,14 +198,16 @@ const AllOrders = () => {
                               <SelectValue placeholder="Update Status" />
                             </SelectTrigger>
                             <SelectContent>
-                            {order.orderStatus !== "Shipped" && order.orderStatus !== "Delivered" ? (
-                              <SelectItem value="Shipped">Shipped</SelectItem>
-                            ) : (
-                              ""
-                            )}
-                            <SelectItem value="Delivered">Delivered</SelectItem>
-                          </SelectContent>
-                         
+                              {order.orderStatus !== "Shipped" &&
+                              order.orderStatus !== "Delivered" ? (
+                                <SelectItem value="Shipped">Shipped</SelectItem>
+                              ) : (
+                                ""
+                              )}
+                              <SelectItem value="Delivered">
+                                Delivered
+                              </SelectItem>
+                            </SelectContent>
                           </Select>
                           <Button type="submit" disabled={!selectedType}>
                             Update

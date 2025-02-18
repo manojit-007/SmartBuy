@@ -67,12 +67,7 @@ const items = [
     title: "Search By Id",
     url: "/dashboard/search",
     icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "/settings",
-    icon: Settings,
-  },
+  }
 ];
 const Index = () => {
   const { user, loading } = useSelector((state) => state.auth);

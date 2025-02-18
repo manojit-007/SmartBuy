@@ -64,19 +64,11 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      const response = await dispatch(registerUser(formData));
-
-      if (response.status === 201) {
-        console.log(response);
-        toast.success(
-          "Registration successful! Redirecting to verify email..."
-        );
-        setTimeout(() => {
-          navigate("/verifyEmail");
-        }, 2000);
-      } else {
-        toast.error(response.payload);
-      }
+      await dispatch(registerUser(formData));
+      toast.success("Registration successful! Redirecting to verify email...");
+      setTimeout(() => {
+        navigate("/verifyEmail");
+      }, 1000);
     } catch (error) {
       console.log(error);
       toast.error(error || "An error occurred.");

@@ -233,17 +233,19 @@ const AuthSlice = createSlice({
       // Register User
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isAuthenticated = true;
-        state.user = action.payload;
+        state.user = action.payload; // Set the registered user
         state.loading = false;
+        state.error = null; // Clear any previous error
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isAuthenticated = false;
-        state.user = null;
+        state.user = null; // Clear user state on error
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload; // Set the error message
       })
       // Fetch User
       .addCase(fetchUser.pending, (state) => {
@@ -374,6 +376,7 @@ const AuthSlice = createSlice({
       })
       .addCase(verifyOtp.fulfilled, (state, action) => {
         state.successMessage = "OTP verified successfully!";
+        state.user.verified = true;
         state.loading = false;
       })
       .addCase(verifyOtp.rejected, (state, action) => {

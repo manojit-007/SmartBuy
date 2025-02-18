@@ -13,7 +13,6 @@ import {
   LayoutDashboard,
   Package2,
   Search,
-  Settings,
   ShoppingCart,
   User,
 } from "lucide-react";

@@ -166,7 +166,7 @@ const getOrderDetails = CatchAsyncError(async (req, res, next) => {
 //admin
 
 const getAllOrders = CatchAsyncError(async(req,res,next)=>{
-  const role = req.role || "admin";
+  const role = req.role;
   if(role!== "admin"){
     return res.status(403).json({
       message: "Forbidden. Only admin can access this route",
@@ -254,7 +254,7 @@ const updateOrderStatus = CatchAsyncError(async (req, res, next) => {
 });
 
 const deleteOrder = CatchAsyncError(async(req,res,next)=>{
-  const role = req.role || "admin";
+  const role = req.role;
   if(role!== "admin"){
     return res.status(403).json({
       message: "Forbidden. Only admin can access this route",

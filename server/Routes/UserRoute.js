@@ -27,6 +27,8 @@ UserRouter.post("/changePassword", verifyUser, changePassword);
 UserRouter.post("/password/forgot",forgotPassword);
 
 UserRouter.put("/password/reset/:resetToken",resetPassword);
+
+//admin routes
 UserRouter.get("/getUser",verifyUser,getUserDetailsById);
 UserRouter.put("/updateUser",verifyUser,updateUser);
 

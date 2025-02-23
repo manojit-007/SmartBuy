@@ -150,18 +150,19 @@ const AllOrders = () => {
                     value={`item-${order._id}`}
                     className="bg-white shadow rounded-lg border p-4"
                   >
-                    <AccordionTrigger className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
+                    
+                    <AccordionTrigger className="flex flex-wrap justify-between items-center">
+                      <div className="flex flex-wrap items-center gap-2">
                         <img
                           src={OrderIcon}
                           alt="Order"
-                          className="w-5 h-5 object-contain"
+                          className="w-4 h-4 object-contain"
                         />
                         <span
                           onClick={() =>
                             navigate(`/dashboard/order/${order._id}`)
                           }
-                          className="text-sm text-gray-700 flex items-center justify-center gap-1"
+                          className="text-sm text-gray-700 flex items-center justify-center "
                         >
                           <strong>Order ID:</strong> {order._id}{" "}
                           <ExternalLink className="w-4 h-4" />

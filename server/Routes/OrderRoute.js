@@ -8,8 +8,8 @@ OrderRoute.get('/getOrderDetails/:id',verifyUser, getOrderDetails);
 OrderRoute.get('/getUserOrders',verifyUser,GetUserAllOrders);
 
 //admin routes
-OrderRoute.get('/getAllOrders',getAllOrders);
+OrderRoute.get('/getAllOrders',verifyUser,getAllOrders);
 OrderRoute.put('/updateOrder/:id',verifyUser,updateOrderStatus);
-OrderRoute.delete('/:id',deleteOrder);
+OrderRoute.delete('/:id',verifyUser,deleteOrder);
 
 module.exports = OrderRoute;

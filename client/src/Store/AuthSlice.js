@@ -6,10 +6,16 @@ export const fetchUser = createAsyncThunk(
   "auth/fetchUser",
   async (_, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        return rejectWithValue("User not logged in.");
+      }
+
       const response = await apiClient.get("/user/me", {
         withCredentials: true,
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
+
       return response.data.user;
     } catch (error) {
       return rejectWithValue(
@@ -18,6 +24,7 @@ export const fetchUser = createAsyncThunk(
     }
   }
 );
+
 
 export const registerUser = createAsyncThunk(
   "auth/registerUser",

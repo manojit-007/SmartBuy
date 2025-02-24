@@ -1,5 +1,8 @@
 # SmartBuy
 
+- **Visit**: [SmartBuy API Documentation](https://smart-buy-eta.vercel.app/)
+
+
 ## Overview
 SmartBuy is an e-commerce platform that provides APIs for user management, product management, order processing, and payment integration. This README serves as the entry point for understanding the platform and accessing its resources.
 

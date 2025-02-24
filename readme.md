@@ -1,6 +1,6 @@
 # SmartBuy
 
-- **Visit**: [SmartBuy API Documentation](https://smart-buy-eta.vercel.app/)
+- **Visit**: [SmartBuy](https://smart-buy-eta.vercel.app/)
 
 
 ## Overview

@@ -38,11 +38,13 @@ Comprehensive API documentation is available, providing details on all endpoints
    ```bash
    cd server 
    npm install
+   npm run dev
    ```
 #### For Starting Client
    ```bash
    cd client
    npm install
+   npm run dev
    ```
 
 ### Environment Variables
@@ -98,7 +100,6 @@ Contributions are welcome! Please follow these steps:
 4. Submit a pull request.
 
 ## End
-For any issues or feature requests, feel free to open an issue in the repository or contact me at `manojitbhowmick.prof.07@gmail.com
-`.
+For any issues or feature requests, feel free to open an issue in the repository or contact me at `manojitbhowmick.prof.07@gmail.com`.
 ---
 
